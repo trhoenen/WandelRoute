@@ -9,7 +9,7 @@
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+  >
 
   <style>
     * {
@@ -46,20 +46,30 @@
       border-bottom: 1px solid #ddd;
     }
 
-    .location-button {
+    .location-button,
+    .route-button {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       border: none;
       border-radius: 12px;
-      background: #222;
       color: white;
       font-size: 16px;
       cursor: pointer;
+    }
+
+    .location-button {
+      background: #222;
       margin-bottom: 15px;
     }
 
-    .location-button:disabled {
-      opacity: 0.6;
+    .route-button {
+      background: #3f7d4c;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    button:disabled {
+      opacity: 0.55;
       cursor: wait;
     }
 
@@ -91,23 +101,6 @@
       color: #666;
     }
 
-    .route-button {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 13px;
-      background: #3f7d4c;
-      color: white;
-      font-size: 17px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .route-button:disabled {
-      opacity: 0.5;
-      cursor: wait;
-    }
-
     #map {
       height: 55vh;
       min-height: 380px;
@@ -132,6 +125,11 @@
       padding: 14px;
       margin-bottom: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      cursor: pointer;
+    }
+
+    .route-card:active {
+      transform: scale(0.99);
     }
 
     .route-title {
@@ -216,13 +214,14 @@
   </div>
 </div>
 
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 
-  // ------------------------------------------------------------
+  // ============================================================
   // INSTELLINGEN
-  // ------------------------------------------------------------
+  // ============================================================
 
   const VALHALLA_URL =
     "https://valhalla1.openstreetmap.de/route";
@@ -230,35 +229,49 @@
   let userLocation = null;
   let map = null;
   let userMarker = null;
-
   let routeLayers = [];
 
-  // Verschillende richtingen vanaf je startpunt.
-  // Hierdoor proberen we verschillende soorten rondjes.
+
+  /*
+    Veel meer richtingen.
+
+    We gebruiken 12 richtingen rondom de gebruiker.
+  */
+
   const BEARINGS = [
     0,
+    30,
     60,
+    90,
     120,
+    150,
     180,
+    210,
     240,
-    300
+    270,
+    300,
+    330
   ];
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // KAART
-  // ------------------------------------------------------------
+  // ============================================================
 
   function createMap(lat, lon) {
 
     if (!map) {
 
-      map = L.map("map").setView([lat, lon], 14);
+      map = L.map("map").setView(
+        [lat, lon],
+        14
+      );
 
       L.tileLayer(
         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
         {
           maxZoom: 19,
+
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }
@@ -266,24 +279,30 @@
 
     } else {
 
-      map.setView([lat, lon], 14);
+      map.setView(
+        [lat, lon],
+        14
+      );
 
     }
+
 
     if (userMarker) {
       userMarker.remove();
     }
 
-    userMarker = L.marker([lat, lon])
-      .addTo(map)
-      .bindPopup("📍 Jij bent hier");
+
+    userMarker =
+      L.marker([lat, lon])
+        .addTo(map)
+        .bindPopup("📍 Jij bent hier");
 
   }
 
 
-  // ------------------------------------------------------------
+  // ============================================================
   // LOCATIE
-  // ------------------------------------------------------------
+  // ============================================================
 
   function getLocation() {
 
@@ -293,11 +312,14 @@
     const status =
       document.getElementById("status");
 
+
     button.disabled = true;
-    button.textContent = "📍 Locatie ophalen...";
+    button.textContent =
+      "📍 Locatie ophalen...";
 
     status.textContent =
       "Je locatie wordt opgehaald...";
+
 
     if (!navigator.geolocation) {
 
@@ -305,46 +327,66 @@
         "Je browser ondersteunt geen locatiebepaling.";
 
       button.disabled = false;
-      button.textContent = "📍 Gebruik mijn locatie";
+
+      button.textContent =
+        "📍 Gebruik mijn locatie";
 
       return;
     }
+
 
     navigator.geolocation.getCurrentPosition(
 
       function(position) {
 
-        const lat = position.coords.latitude;
-        const lon = position.coords.longitude;
-
         userLocation = {
-          lat: lat,
-          lon: lon
+
+          lat:
+            position.coords.latitude,
+
+          lon:
+            position.coords.longitude
+
         };
 
-        createMap(lat, lon);
+
+        createMap(
+          userLocation.lat,
+          userLocation.lon
+        );
+
 
         status.textContent =
           "Locatie gevonden. Klaar om te wandelen!";
 
-        button.disabled = false;
-        button.textContent = "📍 Locatie opnieuw ophalen";
 
-        document.getElementById("routeButton").disabled = false;
+        button.disabled = false;
+
+        button.textContent =
+          "📍 Locatie opnieuw ophalen";
+
+
+        document
+          .getElementById("routeButton")
+          .disabled = false;
 
       },
+
 
       function(error) {
 
         console.error(error);
 
         status.textContent =
-          "Locatie kon niet worden opgehaald. Controleer je browserinstellingen.";
+          "Locatie kon niet worden opgehaald.";
 
         button.disabled = false;
-        button.textContent = "📍 Opnieuw proberen";
+
+        button.textContent =
+          "📍 Opnieuw proberen";
 
       },
+
 
       {
         enableHighAccuracy: true,
@@ -356,305 +398,13 @@
   }
 
 
-  // ------------------------------------------------------------
-  // AFSTANDSBEREIK
-  // ------------------------------------------------------------
+  // ============================================================
+  // BEREIK
+  // ============================================================
 
   function updateRange() {
 
     const distance =
-      parseFloat(document.getElementById("distance").value);
-
-    const margin =
-      parseFloat(document.getElementById("margin").value);
-
-    if (
-      isNaN(distance) ||
-      isNaN(margin)
-    ) {
-      return;
-    }
-
-    const minimum =
-      Math.max(0, distance - margin);
-
-    const maximum =
-      distance + margin;
-
-    document.getElementById("range").textContent =
-      `Geldig bereik: ${minimum.toFixed(1)}–${maximum.toFixed(1)} km`;
-  }
-
-
-  // ------------------------------------------------------------
-  // PUNT OP EEN CIRKEL
-  // ------------------------------------------------------------
-
-  function destinationPoint(lat, lon, distanceKm, bearingDegrees) {
-
-    const earthRadius = 6371;
-
-    const bearing =
-      bearingDegrees * Math.PI / 180;
-
-    const lat1 =
-      lat * Math.PI / 180;
-
-    const lon1 =
-      lon * Math.PI / 180;
-
-    const angularDistance =
-      distanceKm / earthRadius;
-
-    const lat2 =
-      Math.asin(
-        Math.sin(lat1) *
-        Math.cos(angularDistance) +
-        Math.cos(lat1) *
-        Math.sin(angularDistance) *
-        Math.cos(bearing)
-      );
-
-    const lon2 =
-      lon1 +
-      Math.atan2(
-        Math.sin(bearing) *
-        Math.sin(angularDistance) *
-        Math.cos(lat1),
-        Math.cos(angularDistance) -
-        Math.sin(lat1) *
-        Math.sin(lat2)
-      );
-
-    return {
-
-      lat:
-        lat2 * 180 / Math.PI,
-
-      lon:
-        lon2 * 180 / Math.PI
-
-    };
-  }
-
-
-  // ------------------------------------------------------------
-  // VALHALLA POLYLINE DECODER
-  // ------------------------------------------------------------
-
-  function decodePolyline(encoded) {
-
-    let index = 0;
-    let lat = 0;
-    let lon = 0;
-
-    const coordinates = [];
-
-    while (index < encoded.length) {
-
-      let result = 0;
-      let shift = 0;
-      let byte;
-
-      do {
-
-        byte =
-          encoded.charCodeAt(index++) - 63;
-
-        result |=
-          (byte & 0x1f) << shift;
-
-        shift += 5;
-
-      } while (byte >= 0x20);
-
-      const deltaLat =
-        ((result & 1)
-          ? ~(result >> 1)
-          : (result >> 1));
-
-      lat += deltaLat;
-
-      result = 0;
-      shift = 0;
-
-      do {
-
-        byte =
-          encoded.charCodeAt(index++) - 63;
-
-        result |=
-          (byte & 0x1f) << shift;
-
-        shift += 5;
-
-      } while (byte >= 0x20);
-
-      const deltaLon =
-        ((result & 1)
-          ? ~(result >> 1)
-          : (result >> 1));
-
-      lon += deltaLon;
-
-      coordinates.push([
-        lat / 1000000,
-        lon / 1000000
-      ]);
-
-    }
-
-    return coordinates;
-  }
-
-
-  // ------------------------------------------------------------
-  // ÉÉN ROUTE OPHALEN
-  // ------------------------------------------------------------
-
-  async function getRoute(target) {
-
-    const request = {
-
-      locations: [
-
-        {
-          lat: userLocation.lat,
-          lon: userLocation.lon
-        },
-
-        {
-          lat: target.lat,
-          lon: target.lon
-        },
-
-        {
-          lat: userLocation.lat,
-          lon: userLocation.lon
-        }
-
-      ],
-
-      costing: "pedestrian",
-
-      directions_options: {
-        units: "kilometers"
-      },
-
-      shape_format: "polyline6"
-
-    };
-
-
-    const response =
-      await fetch(
-        VALHALLA_URL,
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify(request)
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "Route-server gaf fout " +
-        response.status
-      );
-
-    }
-
-
-    const data =
-      await response.json();
-
-
-    if (
-      !data.trip ||
-      !data.trip.summary ||
-      !data.trip.legs
-    ) {
-
-      throw new Error(
-        "Ongeldige route ontvangen"
-      );
-
-    }
-
-
-    const coordinates = [];
-
-    data.trip.legs.forEach(
-      function(leg) {
-
-        if (leg.shape) {
-
-          const decoded =
-            decodePolyline(leg.shape);
-
-          coordinates.push(
-            ...decoded
-          );
-
-        }
-
-      }
-    );
-
-
-    return {
-
-      distance:
-        data.trip.summary.length,
-
-      coordinates:
-        coordinates
-
-    };
-
-  }
-
-
-  // ------------------------------------------------------------
-  // OUDE ROUTES WEGHALEN
-  // ------------------------------------------------------------
-
-  function clearRoutes() {
-
-    routeLayers.forEach(
-      function(layer) {
-        layer.remove();
-      }
-    );
-
-    routeLayers = [];
-
-  }
-
-
-  // ------------------------------------------------------------
-  // ROUTES ZOEKEN
-  // ------------------------------------------------------------
-
-  async function findRoutes() {
-
-    if (!userLocation) {
-
-      alert(
-        "Gebruik eerst je locatie."
-      );
-
-      return;
-    }
-
-
-    const desiredDistance =
       parseFloat(
         document.getElementById("distance").value
       );
@@ -665,278 +415,23 @@
       );
 
 
-    const minimum =
-      Math.max(
-        0.1,
-        desiredDistance - margin
-      );
-
-    const maximum =
-      desiredDistance + margin;
-
-
-    const button =
-      document.getElementById("routeButton");
-
-    const status =
-      document.getElementById("status");
-
-    const routeContainer =
-      document.getElementById("routes");
-
-
-    button.disabled = true;
-    button.textContent =
-      "🔎 Routes zoeken...";
-
-    status.textContent =
-      "Ik zoek verschillende wandelrondjes...";
-
-
-    clearRoutes();
-
-    routeContainer.innerHTML = "";
-
-
-    /*
-      Voor een rondwandeling ligt het gekozen tussenpunt
-      ongeveer halverwege de totale route.
-
-      We proberen een paar verschillende richtingen.
-    */
-
-    const targetDistance =
-      desiredDistance / 2;
-
-
-    const targets =
-      BEARINGS.map(
-        function(bearing) {
-
-          return destinationPoint(
-            userLocation.lat,
-            userLocation.lon,
-            targetDistance,
-            bearing
-          );
-
-        }
-      );
-
-
-    const results = [];
-
-
-    // Niet alles tegelijk om de publieke server
-    // een beetje netjes te behandelen.
-    for (
-      let i = 0;
-      i < targets.length;
-      i++
+    if (
+      isNaN(distance) ||
+      isNaN(margin)
     ) {
-
-      try {
-
-        status.textContent =
-          `Route ${i + 1} van ${targets.length} wordt gezocht...`;
-
-        const route =
-          await getRoute(targets[i]);
-
-
-        if (
-          route.distance >= minimum &&
-          route.distance <= maximum
-        ) {
-
-          results.push(route);
-
-        }
-
-      } catch (error) {
-
-        console.error(
-          "Route fout:",
-          error
-        );
-
-      }
-
-    }
-
-
-    // ----------------------------------------------------------
-    // RESULTATEN TONEN
-    // ----------------------------------------------------------
-
-    if (results.length === 0) {
-
-      status.textContent =
-        "Geen routes gevonden binnen je marge. Probeer een iets ruimere marge.";
-
-      routeContainer.innerHTML = `
-        <div class="empty">
-          😕 Geen geschikte routes gevonden.<br><br>
-          Probeer bijvoorbeeld je marge iets groter te maken.
-        </div>
-      `;
-
-      button.disabled = false;
-      button.textContent =
-        "✨ Opnieuw zoeken";
-
       return;
     }
 
 
-    // Kortste eerst
-    results.sort(
-      function(a, b) {
-        return a.distance - b.distance;
-      }
-    );
-
-
-    results.forEach(
-      function(route, index) {
-
-        const line =
-          L.polyline(
-            route.coordinates,
-            {
-              weight: 5,
-              opacity: 0.8
-            }
-          ).addTo(map);
-
-
-        routeLayers.push(line);
-
-
-        line.bindPopup(
-          `🥾 Route ${index + 1}<br>` +
-          `${route.distance.toFixed(1)} km`
-        );
-
-
-        const card =
-          document.createElement("div");
-
-        card.className =
-          "route-card";
-
-
-        card.innerHTML = `
-          <div class="route-title">
-            🥾 Route ${index + 1}
-          </div>
-
-          <div class="route-distance">
-            ${route.distance.toFixed(1)} km
-          </div>
-        `;
-
-
-        card.addEventListener(
-          "click",
-          function() {
-
-            map.fitBounds(
-              line.getBounds(),
-              {
-                padding: [30, 30]
-              }
-            );
-
-            line.openPopup();
-
-          }
-        );
-
-
-        routeContainer.appendChild(card);
-
-      }
-    );
-
-
-    // Kaart passend maken om alle routes
-    const allBounds = [];
-
-    results.forEach(
-      function(route) {
-
-        route.coordinates.forEach(
-          function(point) {
-            allBounds.push(point);
-          }
-        );
-
-      }
-    );
-
-
-    if (allBounds.length > 0) {
-
-      map.fitBounds(
-        allBounds,
-        {
-          padding: [30, 30]
-        }
+    const minimum =
+      Math.max(
+        0,
+        distance - margin
       );
 
-    }
+    const maximum =
+      distance + margin;
 
 
-    status.textContent =
-      `${results.length} verrassingsroute${results.length === 1 ? "" : "s"} gevonden binnen ${minimum.toFixed(1)}–${maximum.toFixed(1)} km.`;
-
-    button.disabled = false;
-    button.textContent =
-      "✨ Nieuwe verrassingsroutes";
-
-  }
-
-
-  // ------------------------------------------------------------
-  // EVENTS
-  // ------------------------------------------------------------
-
-  document
-    .getElementById("locationButton")
-    .addEventListener(
-      "click",
-      getLocation
-    );
-
-
-  document
-    .getElementById("routeButton")
-    .addEventListener(
-      "click",
-      findRoutes
-    );
-
-
-  document
-    .getElementById("distance")
-    .addEventListener(
-      "input",
-      updateRange
-    );
-
-
-  document
-    .getElementById("margin")
-    .addEventListener(
-      "input",
-      updateRange
-    );
-
-
-  updateRange();
-
-</script>
-
-</body>
-</html>
+    document.getElementById("range").textContent =
+      `Geldig bereik: ${minimum.toFixed(
