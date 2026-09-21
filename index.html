@@ -3,200 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Wandel Vibe</title>
-
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f1ea;
-      color: #222;
-    }
-
-    .app {
-      max-width: 700px;
-      margin: auto;
-      padding: 20px;
-    }
-
-    h1 {
-      margin-bottom: 5px;
-    }
-
-    .subtitle {
-      color: #666;
-      margin-bottom: 20px;
-    }
-
-    button {
-      width: 100%;
-      padding: 16px;
-      margin: 8px 0;
-      border: 0;
-      border-radius: 12px;
-      font-size: 17px;
-      cursor: pointer;
-    }
-
-    .location {
-      background: #222;
-      color: white;
-    }
-
-    .routes {
-      background: #5d7f62;
-      color: white;
-    }
-
-    .settings {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      margin: 15px 0;
-    }
-
-    label {
-      display: block;
-      margin-top: 10px;
-      font-weight: bold;
-    }
-
-    input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    #map {
-      height: 400px;
-      border-radius: 15px;
-      margin-top: 15px;
-    }
-
-    #status {
-      padding: 12px;
-      margin-top: 10px;
-      background: white;
-      border-radius: 10px;
-      min-height: 20px;
-    }
-
-    .route {
-      background: white;
-      padding: 15px;
-      border-radius: 12px;
-      margin-top: 10px;
-    }
-  </style>
+  <title>Wandel Vibe Test</title>
 </head>
 
 <body>
 
-<div class="app">
+<h1>🥾 Wandel Vibe</h1>
 
-  <h1>🥾 Wandel Vibe</h1>
-  <div class="subtitle">
-    Ontdek wandelroutes die bij jouw vibe passen.
-  </div>
+<button onclick="test()">
+  KLIK HIER
+</button>
 
-  <button class="location" id="locationButton">
-    📍 Gebruik mijn locatie
-  </button>
-
-  <div id="status">
-    Klaar om je locatie op te halen.
-  </div>
-
-  <div class="settings">
-
-    <label for="distance">
-      Gewenste afstand (km)
-    </label>
-
-    <input
-      id="distance"
-      type="number"
-      value="12"
-      min="1"
-      max="50"
-      step="0.5"
-    >
-
-    <label for="margin">
-      Afwijking toegestaan (km)
-    </label>
-
-    <input
-      id="margin"
-      type="number"
-      value="1"
-      min="0"
-      max="10"
-      step="0.5"
-    >
-
-  </div>
-
-  <button class="routes" id="routesButton">
-    ✨ Verrassingsroutes
-  </button>
-
-  <div id="map"></div>
-
-  <div id="routes"></div>
-
-</div>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<p id="resultaat">Nog niets gebeurd.</p>
 
 <script>
+function test() {
+  document.getElementById("resultaat").innerText =
+    "✅ JavaScript werkt!";
+}
+</script>
 
-  let map = null;
-  let userMarker = null;
-  let userLocation = null;
-
-  const status = document.getElementById("status");
-  const locationButton = document.getElementById("locationButton");
-  const routesButton = document.getElementById("routesButton");
-
-  function setStatus(message) {
-    status.textContent = message;
-  }
-
-  function initMap(lat, lon) {
-
-    if (!map) {
-
-      map = L.map("map").setView([lat, lon], 14);
-
-      L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          attribution: "&copy; OpenStreetMap contributors"
-        }
-      ).addTo(map);
-
-    } else {
-
-      map.setView([lat, lon], 14);
-
-    }
-
-    if (userMarker) {
-      userMarker.remove();
-    }
-
-    userMarker = L.marker([lat, lon])
-      .addTo(map)
-      .bindPopup("📍 Jij bent hier")
-      .open
+</body>
+</html>
