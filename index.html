@@ -1,0 +1,300 @@
+<!doctype html>
+
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#34452f">
+  <title>Wandel Vibe</title>  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f4f2eb;
+      color: #20251f;
+    }
+
+    .app {
+      width: min(700px, calc(100% - 32px));
+      margin: auto;
+      padding: 48px 0;
+    }
+
+    .eyebrow {
+      color: #718067;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(42px, 11vw, 72px);
+      line-height: .95;
+      letter-spacing: -.06em;
+      margin: 10px 0 20px;
+    }
+
+    h1 span {
+      color: #6d7f62;
+    }
+
+    .intro {
+      color: #697064;
+      font-size: 18px;
+      line-height: 1.5;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: rgba(255,255,255,.8);
+      border: 1px solid rgba(50,60,45,.09);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 16px 45px rgba(48,53,42,.07);
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      color: #4d5549;
+      margin-bottom: 8px;
+    }
+
+    .location {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #d8ddd3;
+      border-radius: 14px;
+      background: #fbfcf9;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .input {
+      display: flex;
+      align-items: center;
+      border: 1px solid #d8ddd3;
+      border-radius: 14px;
+      background: #fbfcf9;
+      padding: 0 14px;
+    }
+
+    input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      padding: 14px 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .unit {
+      color: #81887d;
+    }
+
+    .range {
+      display: flex;
+      justify-content: space-between;
+      background: #eef2e9;
+      border-radius: 13px;
+      padding: 13px 15px;
+      margin: 20px 0 16px;
+      color: #697260;
+      font-size: 14px;
+    }
+
+    .range strong {
+      color: #3e4939;
+    }
+
+    .button {
+      width: 100%;
+      border: 0;
+      border-radius: 15px;
+      padding: 16px;
+      background: #34452f;
+      color: white;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .button:active {
+      transform: scale(.99);
+    }
+
+    #locationStatus {
+      color: #8a9086;
+      font-size: 12px;
+      margin: 8px 4px 0;
+    }
+
+    .success {
+      margin-top: 28px;
+      padding: 18px;
+      border-radius: 18px;
+      background: #e8eee2;
+      color: #46523f;
+      display: none;
+    }
+
+    footer {
+      text-align: center;
+      color: #9a9e96;
+      font-size: 12px;
+      margin-top: 32px;
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding-top: 30px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style></head><body>  <main class="app"><div class="eyebrow">Wandel Vibe</div>
+
+<h1>
+  Ga wandelen.<br>
+  <span>Ontdek iets nieuws.</span>
+</h1>
+
+<p class="intro">
+  Geef aan hoe ver je wilt lopen en ontdek straks verrassende wandelingen
+  in je omgeving.
+</p>
+
+<section class="card">
+
+  <label>Startlocatie</label>
+
+  <button class="location" onclick="getLocation()">
+    📍 Gebruik mijn locatie
+  </button>
+
+  <div id="locationStatus">
+    Nog geen locatie gekozen
+  </div>
+
+  <div class="grid">
+
+    <div>
+      <label for="distance">Gewenste afstand</label>
+
+      <div class="input">
+        <input
+          id="distance"
+          type="number"
+          value="12"
+          min="1"
+          max="50"
+          step="0.5"
+          oninput="updateRange()"
+        >
+        <span class="unit">km</span>
+      </div>
+    </div>
+
+    <div>
+      <label for="margin">Marge</label>
+
+      <div class="input">
+        <input
+          id="margin"
+          type="number"
+          value="1"
+          min="0"
+          max="10"
+          step="0.5"
+          oninput="updateRange()"
+        >
+        <span class="unit">km</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="range">
+    <span>Geldige routes</span>
+    <strong id="range">11–13 km</strong>
+  </div>
+
+  <button class="button" onclick="findRoutes()">
+    ✨ Verrassingsroutes
+  </button>
+
+  <div id="success" class="success">
+    🎉 Klaar voor de volgende stap!<br><br>
+    De echte route-engine komt hierna.
+  </div>
+
+</section>
+
+<footer>
+  Wandel Vibe · privé · lokaal-first
+</footer>
+
+  </main>  <script>
+    function updateRange() {
+      const distance = Number(document.getElementById("distance").value);
+      const margin = Number(document.getElementById("margin").value);
+
+      const min = Math.max(0, distance - margin);
+      const max = distance + margin;
+
+      document.getElementById("range").textContent =
+        `${min}–${max} km`;
+    }
+
+    function getLocation() {
+      const status = document.getElementById("locationStatus");
+
+      if (!navigator.geolocation) {
+        status.textContent =
+          "Je browser ondersteunt geen locatie.";
+        return;
+      }
+
+      status.textContent = "Locatie ophalen…";
+
+      navigator.geolocation.getCurrentPosition(
+        position => {
+          const lat = position.coords.latitude.toFixed(4);
+          const lon = position.coords.longitude.toFixed(4);
+
+          status.textContent =
+            `Locatie gevonden · ${lat}, ${lon}`;
+        },
+        () => {
+          status.textContent =
+            "Locatie kon niet worden opgehaald.";
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000
+        }
+      );
+    }
+
+    function findRoutes() {
+      document.getElementById("success").style.display = "block";
+    }
+
+    updateRange();
+  </script></body>
+</html>
